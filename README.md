@@ -1,17 +1,27 @@
 # codebased: repository
 
 ## structure
-`codebased/` root directory
-- `cmake/` contains code coverage report configuration, used in CMakeLists.txt
-- `docker/` contains all files necessary to generate Docker image
-- `include/` contains all header files and canonical config files for both local testing and deployment
-   - `http/` contains all header files for 
-- `src/` contains all source code files, implementations of classes
-   - `http/` contains 
-- `tests/` contains all testing files
-   - `cases/` contains all expected outputs for test cases
-   - `static_files/` contains all static files served, used in both test cases and deployment
-- `CMakeLists.txt` contains the commands necessary to build the project
+`codebased/`
+- `cmake/`
+   - contains code coverage report configuration, used in CMakeLists.txt
+- `docker/`
+   - contains all files necessary to generate Docker image
+- `include/`
+   - contains all header files and canonical config files for both local testing and deployment
+   - `http/`
+      - contains all http-specific header files, i.e. specifying path, endpoint types
+- `src/`
+   - contains all source code files, implementations of classes
+   - `http/`
+      - contains all http-specific source files, i.e. extension mapping
+- `tests/`
+   - contains all testing files
+   - `cases/`
+      - contains all expected outputs for test cases
+   - `static_files/`
+      - contains all static files served, used in both test cases and deployment
+- `CMakeLists.txt`
+   - contains the commands necessary to build the project
 
 ## build
 commands to perform an out-of-source build in unix terminal:
@@ -32,38 +42,34 @@ commands to run the webserver locally, starting in the build directory:
 
 ## docker
 commands to generate Docker image and run container locally:
-1. Here
-2. Here
+1. `docker build -f docker/Dockerfile -t my_image .` to generate the Docker image from the docker file
+2. `docker run --rm -p 8080:8080 --name my_run my_image:latest` to run the Docker image in a container locally
+3. `docker container stop my_run` to stop the Docker container
 
 ## config file format
 **include/config**
 ```
 port 8080;
 
-echo {
-    location /echo{
-    }
+location /echo EchoHandler {
 }
 
-static {
-    location /static1/ {
-        root ../tests/static_files/static1;
-    }
-
-    location /static2/ {
-        root ../tests/static_files/static2;
-    }
+location /static1/ StaticHandler {
+    root ../tests/static_files/static1;
+}
+location /static2/ StaticHandler {
+    root ../tests/static_files/static2;
 }
 ```
 `port` keyword specifies port the server will run on
 
-`echo` keyword indicates bracketed information should be handled by echo handlers
+`location` keyword indicates path the handler with serve on
 
-`location` keyword indicates path
+`<Type>Handler` indicates type of handler that will serve the specified path
 
-`static` keyword 
+`{}` specifies the arguments for a particular handler, empty if none
 
-`root` keyword
+`root` keyword specifies filesystem path that handler will use
 
 ## request handler interface
 **include/request_handler_interface.h**
@@ -95,7 +101,7 @@ http::status error404_handler::serve(const http::request<http::dynamic_body> req
 ```
 explanation of child handler
 
-## add another request handler
+## steps to add a request handler
 1. Create header file `mynew_handler.h` in include/ folder, using the following as a template:
 ```
 #ifndef MYNEW_HANDLER_H
@@ -121,3 +127,6 @@ class mynew_handler : public request_handler_interface{
 4. Add new endpoints to `include/http/paths.h`
 5. Parse new endpoints in `src/config_parser.cc`
 6. Add new handler to `CMakeLists.txt`
+
+## steps to add a request handler factory
+
