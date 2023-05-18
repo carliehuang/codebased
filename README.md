@@ -1,8 +1,5 @@
 # codebased: repository
 
-view this file on github:
-https://github.com/carliehuang/codebased/blob/main/README.md
-
 ## structure
 `codebased/`
 - `cmake/`
